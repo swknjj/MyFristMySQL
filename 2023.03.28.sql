@@ -282,5 +282,40 @@ select date_format(hiredate, '%Y') as '입사년도' , count(*) as '사원수' f
 select date_format(hiredate, '%Y') as '입사년도' , deptno as '부서번호' , count(*) as '사원수' from emp
 				group by date_format(hiredate, '%Y') , deptno;
                 
+-- 조인
+select * from emp;
+select * from dept;
 
+-- 외부조인
+select * from emp , dept;
+-- 조인
+select * from emp , dept where emp.deptno = dept.deptno;
+select * from emp e , dept d where e.deptno = d.deptno;
+-- deptno select 하면 에러
+select empno , ename , deptno , dname from emp e , dept d where e.deptno = d.deptno;
+select e.empno , e.ename , e.deptno , d.dname , d.loc from emp e , dept d where e.deptno = d.deptno;
 
+select e.* from emp e, dept d where e.deptno = d.deptno;
+
+-- emp , dept를 조인하여 empno , ename , deptno , dname , loc 조회
+-- 단 , 급여가 2500 이상인 사람만 조회하고 , 조회 결과는 사원이름 기준으로 오름차순 정렬
+select e.empno , e.ename , e.deptno , d.dname , d.loc 
+	from emp e , dept d 	
+		where e.deptno = d.deptno and e.sal >= 2500
+				order by e.ename asc;
+
+-- 최저급여를 받는 사람이 누구인지?
+select * from emp order by sal asc;
+-- 1. 최저급여값이 얼마인지?
+select min(sal) from emp;
+-- 2. 최저급여 값을 받는 사람이(최저급여 값과 sal 값이 일치하는) 누구인지 조회
+select * from emp where sal=800;
+-- 서브쿼리 적용
+select * from emp where sal=(select min(sal) from emp);
+
+-- 최고급여를 받는 사원 정보 조회
+select * from emp where sal=(select max(sal) from emp);
+-- allen보다 높은 급여를 받는 사원 조회
+select * from emp where sal>(select sal from emp where ename = 'allen')
+	order by sal asc;
+    
