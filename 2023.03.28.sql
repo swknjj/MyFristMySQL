@@ -233,3 +233,54 @@ select job , avg(sal),count(*) from emp group by job order by job asc;
 select job , round(avg(sal),1),count(*) from emp group by job order by job asc;
 -- 위의 결과에서 job은 직급으로 급여 평균값은 평균급여로, 사원수 조회값은 사원수로 표현하여 조회
 select job as '직급' , round(avg(sal),1) as '평균급여',count(*) as '사원수' from emp group by job order by job asc;
+
+-- 2023.03.29
+-- 부서별 그룹핑
+select deptno from emp group by deptno;
+select deptno, avg(sal) from emp group by deptno;
+
+-- 부서별 그룹핑하고 그안에 직급별 그룹핑
+select deptno , job , avg(sal) from emp group by deptno , job;
+select deptno , job , avg(sal) from emp group by job , deptno;
+select deptno , job , avg(sal) from emp group by deptno , job order by job asc;
+select deptno , job , avg(sal) from emp group by deptno , job order by deptno asc;
+select deptno , job , avg(sal) from emp group by deptno , job order by avg(sal) asc;
+
+-- having : 그룹화한 결과에서 조건 적용
+select deptno , job , avg(sal) from emp 
+							group by deptno , job 	
+								having avg(sal) >= 2000
+									order by job asc; 
+                                    
+-- 급여가 3000이하인 사원을 대상으로 위의 그룹핑 수행
+select * from emp order by sal asc;
+select deptno , job , avg(sal) from emp
+						where sal <= 3000
+							group by deptno , job 	
+								having avg(sal) >= 2000
+									order by job asc;                                  
+
+-- date 타입을 문자로 표현하기: date_format()
+select date_format(hiredate, '%Y') from emp;
+
+/*
+	연습문제
+	1. 부서별 평균급여, 최고급여, 최저급여, 사원수 조회(평균급여는 소수점 둘째자리에서 반올림)
+    2. 직급별 사원수 조회(단 3명 이상인 결과만 출력)
+    3. 연도별 입사한 사원수 조회(조회결과 : 연도(yyyy), 사원수)
+    3.1. 위의 결과에서 각 연도별로 부서별 입사한 사원수 조회(조회결과 : 연도(yyyy), 부서번호, 사원수)
+*/
+select deptno as '부서번호' , round(avg(sal),1) as '평균급여', max(sal) as '최고급여', min(sal) as '최소급여', count(*) as '사원수' from emp 
+				group by deptno;
+ 
+select job , count(empno) from emp group by job
+				having count(*) >= 3;
+                
+select date_format(hiredate, '%Y') as '입사년도' , count(*) as '사원수' from emp
+				group by date_format(hiredate, '%Y');
+                
+select date_format(hiredate, '%Y') as '입사년도' , deptno as '부서번호' , count(*) as '사원수' from emp
+				group by date_format(hiredate, '%Y') , deptno;
+                
+
+
