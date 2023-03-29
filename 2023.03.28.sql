@@ -428,5 +428,14 @@ insert into member7(id, member_email, member_password)
 insert into member7(id, member_email, member_password) 
 			values(1, 'member2@email.com', '2222');            
             
+create table member8 (
+	id bigint,
+    member_email varchar(20) not null unique,
+    member_password varchar(10) not null,
+    member_created_date datetime default now(),
+    -- id컬럼에다가 primary key를 지정하겠다
+    constraint pk_member8 primary key(id)
+);
 
-
+-- 제약조건 확인
+select * from information_schema.table_constraints;
