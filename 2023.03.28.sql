@@ -332,3 +332,101 @@ select * from emp where deptno = '20' and sal>(select avg(sal) from emp);
 select * from emp e , dept d 
 	where e.deptno = '20' and d.deptno = '20' 
 		and e.sal>(select avg(sal) from emp);
+        
+        
+create table member1 (
+	id bigint,
+    member_email varchar(20),
+    member_password varchar(10)
+);
+-- 정석적인 방법
+insert into member1(id, member_email, member_password) values(1, 'member1@email.com', '1111');
+-- 모든 컬럼에 데이터를 저장한다면 컬럼이름 생략 가능
+insert into member1 values(2, 'member2@email.com', '2222');
+insert into member1 values(3, 'member2@email.com'); -- error 1136
+-- 특정 컬럼에만 값을 넣고 싶은 경우
+insert into member1(id, member_email) values(4, 'member4@email.com');
+-- 테이블 만들 때 지정한 크기보다 큰 값을 저장할 때
+insert into member1 values(null, null, '22222222222'); -- error 1406
+insert into member1(id, member_email, member_password) values(5, null, '1111');
+insert into member1(id, member_email, member_password) values(null, null, null);
+select * from member1;
+
+create table member2 (
+	id bigint not null,
+    member_email varchar(20),
+    member_password varchar(10)
+);
+
+desc member2;
+
+insert into member2(id, member_email, member_password) values(1, 'member1@email.com', '1111');
+-- error 1048 Column 'id' cannot be null
+insert into member2(id, member_email, member_password) values(null, 'member1@email.com', '1111');
+insert into member2(id, member_email, member_password) values(2, null, '1111');
+
+select * from member2;
+
+create table member3 (
+	id bigint not null unique,
+    member_email varchar(20) not null,
+    member_password varchar(10) not null
+);
+desc member3;
+
+insert into member3(id, member_email, member_password) values(1, 'member1@email.com', '1111');
+-- error 1062 Duplicate entry '1' for key 'member3.id'
+insert into member3(id, member_email, member_password) values(1, 'member1@email.com', '1111');
+insert into member3(id, member_email, member_password) values(2, 'member1@email.com', '1111');
+select * from member3;
+
+create table member4 (
+	id bigint not null unique,
+    member_email varchar(20) not null unique,
+    member_password varchar(10) not null
+);
+insert into member4(id, member_email, member_password) values(1, 'member1@email.com', '1111');
+-- error 1062 Duplicate entry 'member1@email.com' for key 'member4.memeber_email'
+insert into member4(id, member_email, member_password) values(2, 'member1@email.com', '2222');
+select * from member4;
+
+create table member5 (
+	id bigint not null unique,
+    member_email varchar(20) not null unique,
+    member_password varchar(10) not null,
+    member_created_date datetime
+);
+
+insert into member5(id, member_email, member_password, member_created_date) 
+			values(2, 'member1@email.com', '2222', sysdate());
+insert into member5(id, member_email, member_password) 
+			values(3, 'member2@email.com', '2222');
+insert into member5(id, member_email, member_password, member_created_date) 
+			values(4, 'member3@email.com', '2222', sysdate());
+select * from member5;
+
+create table member6 (
+	id bigint not null unique,
+    member_email varchar(20) not null unique,
+    member_password varchar(10) not null,
+    member_created_date datetime default now()
+);
+insert into member6(id, member_email, member_password) 
+			values(1, 'member1@email.com', '1111');
+select * from member6;
+
+create table member7 (
+	id bigint primary key,
+    member_email varchar(20) not null unique,
+    member_password varchar(10) not null,
+    member_created_date datetime default now()
+);
+
+insert into member7(id, member_email, member_password) 
+			values(1, 'member1@email.com', '1111');
+-- error 1062
+insert into member7(id, member_email, member_password) 
+			values(1, 'member2@email.com', '2222');            
+            
+
+
