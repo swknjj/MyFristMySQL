@@ -740,6 +740,7 @@ select * from book where b_price between 10000 and 20000;
 
 -- 6. 출판사가 굿스포츠 또는 대한미디어인 도서 조회
 select * from book where b_publisher = '굿스포츠' or b_publisher = '대한미디어';
+select * from book where b_publisher in('굿스포츠','대한미디어');
 
 -- 7. 도서명에 축구가 포함된 모든 도서를 조회
 select * from book where b_bookname like '%축구%';
@@ -756,3 +757,42 @@ select * from book order by b_bookname asc;
 -- 11.도서를 가격이 낮은 것부터 조회하고 같은 가격일경우 도서명을 가나다 순으로 조회
 select * from book order by b_price, b_bookname asc;
 
+
+
+
+-- 12. 주문 도서의 총 판매액 조회
+select sum(o_saleprice) from orders;
+
+-- 13. 1번 고객이 주문한 도서 총 판매액 조회
+select sum(o_saleprice) from orders where customer_id = 1;
+
+-- 14. orders 테이블로부터 평균판매가 , 최고판매가 , 최저판매가 조회
+select round(avg(o_saleprice),0), max(o_saleprice), min(o_saleprice) from orders;
+
+-- 15. 고객별로 주문한 도서의 총 수량과 총 판매액 조회
+select customer_id,count(*),sum(o_saleprice) from orders group by customer_id;
+
+-- 16. 가격이 8천원 이상인 도서를 구매한 고객에 대해 고객별 주문 도서의 총 수량조회(group by 사용)
+select customer_id,count(*) from orders where o_saleprice>=8000 group by customer_id ;
+
+-- 17. 김연아고객(고객번호 2) 총 구매액
+select sum(o_saleprice) from orders 
+	where customer_id = 
+		( select id from customer where c_name = '김연아');
+        
+-- 18. 김연아 고객이 구매한 도서의 수
+select count(*) from orders
+	where customer_id = 
+		( select id from customer where c_name = '김연아');
+        
+-- 19. 서점의 있는 도서의 총 권수
+select count(*) from book;
+
+-- 20. 출판사의 총 수
+select count(distinct b_publisher) from book;
+
+-- 21. 7월4일~7일 사이에 주문한 도서의 주문번호 주회
+select id from orders where o_orderdate > '2021-07-03' and o_orderdate < '2021-07-08';
+
+-- 22. 7월4일~7일 사이에 주문하지않은 도서의 주문번호 조회
+select id from orders where o_orderdate > '2021-07-07' or o_orderdate < '2021-07-04';
