@@ -334,7 +334,7 @@ select * from emp e , dept d
 		and e.sal>(select avg(sal) from emp);
         
         
-create table member1 (
+create table member1 ( -- 제약조건 X
 	id bigint,
     member_email varchar(20),
     member_password varchar(10)
@@ -352,7 +352,7 @@ insert into member1(id, member_email, member_password) values(5, null, '1111');
 insert into member1(id, member_email, member_password) values(null, null, null);
 select * from member1;
 
-create table member2 (
+create table member2 (-- 제약조건 id = not null
 	id bigint not null,
     member_email varchar(20),
     member_password varchar(10)
@@ -367,7 +367,7 @@ insert into member2(id, member_email, member_password) values(2, null, '1111');
 
 select * from member2;
 
-create table member3 (
+create table member3 (-- 제약조건 id = not null , unique email = not null , password = not null
 	id bigint not null unique,
     member_email varchar(20) not null,
     member_password varchar(10) not null
@@ -380,7 +380,7 @@ insert into member3(id, member_email, member_password) values(1, 'member1@email.
 insert into member3(id, member_email, member_password) values(2, 'member1@email.com', '1111');
 select * from member3;
 
-create table member4 (
+create table member4 (-- 제약조건 id = not null unique email = not null unique , password = not null
 	id bigint not null unique,
     member_email varchar(20) not null unique,
     member_password varchar(10) not null
@@ -390,7 +390,7 @@ insert into member4(id, member_email, member_password) values(1, 'member1@email.
 insert into member4(id, member_email, member_password) values(2, 'member1@email.com', '2222');
 select * from member4;
 
-create table member5 (
+create table member5 (-- 제약조건 id = not null unique email = not null , password = not null
 	id bigint not null unique,
     member_email varchar(20) not null unique,
     member_password varchar(10) not null,
@@ -439,3 +439,32 @@ create table member8 (
 
 -- 제약조건 확인
 select * from information_schema.table_constraints;
+
+
+-- 20230330 참조관계
+-- 게시판과 댓글의 관계
+
+drop table if exists board1;
+create table board1(
+	id bigint,
+    board_writer varchar(20) not null, -- 작성자
+    board_contents varchar(500), -- 내용
+    constraint pk_board1 primary key(id)
+    );
+    
+-- 댓글 테이블 : 댓글은 존재하는 게시글에서만 작성 가능하며 , 
+-- 게시글의 글번호(ID)를 참조하는 관계로 정의
+
+drop table if exists comment1;
+create table comment1 (
+	id bigint, -- 댓글 번호
+    comment_writer varchar(20) not null, -- 댓글 작성자
+    comment_contents varchar(200), -- 댓글 내용
+    board1_id bigint, -- 어떤 게시글에 작성된 댓글인지 글번호 정보가 필요함
+    -- 댓글테이블(comment1)의 pk지정
+    constraint pk_comment1 primary key(id),
+    -- 참조관계 지정을 위해 comment1 테이블의 board1_id 컬럼을
+    -- board1 테이블의 id 컬럼을 참조하는 관계로 정의
+    -- 참조하는 데이터는 타입이 같이야 한다 ( 여기서는 board(id) = bigint, comment1(id)= bigint 이므로 가능 )
+    constraint fk_comment1 foreign key(board1_id) references board1(id)
+    );
