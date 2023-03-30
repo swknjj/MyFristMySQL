@@ -547,3 +547,75 @@ delete from board2 where id=3;
 -- 4번 게시글 삭제
 delete from board2 where id=4;
 
+
+drop table if exists board3;
+create table board3(
+	id bigint, -- 글번호
+    board3_writer varchar(20) not null, -- 작성자
+    board3_contents varchar(500), -- 내용
+    constraint pk_board3 primary key(id)
+);
+
+drop table if exists comment3;
+create table comment3(
+	id bigint, -- 글번호
+    comment3_writer varchar(20) not null, -- 댓글 작성자
+    comment3_contents varchar(200), -- 댓글 내용
+    board3_id bigint, -- 어떤 게시글에 작성된 댓글인지 글번호 정보가 필요함
+    constraint pk_board3 primary key(id),
+    -- on delete set null : 자식 데이터는 유지되지만 참조 컬럼은 null로 바꿈
+    constraint fk_comment3 foreign key(board3_id) references board3(id) on delete set null
+);
+
+insert into board3(id, board3_writer, board3_contents)
+values(1, 'writer1', 'contents1');
+insert into board3(id, board3_writer, board3_contents)
+values(2, 'writer2', 'contents2');
+insert into board3(id, board3_writer, board3_contents)
+values(3, 'writer3', 'contents3');
+insert into board3(id, board3_writer, board3_contents)
+values(4, 'writer4', 'contents4');
+select * from board3;
+-- 1,2번 게시글에 댓글 작성
+insert into comment3(id, comment3_writer, comment3_contents, board3_id)
+	values (1, 'c writer1', 'c contents1', 1);
+insert into comment3(id, comment3_writer, comment3_contents, board3_id)
+	values (2, 'c writer1', 'c contents1', 2);
+insert into comment3(id, comment3_writer, comment3_contents, board3_id)
+	values (3, 'c writer1', 'c contents1', 3);
+insert into comment3(id, comment3_writer, comment3_contents, board3_id)
+	values (4, 'c writer1', 'c contents1', 4);
+select * from comment3;
+-- 3번 게시글 삭제
+delete from board3 where id=3;
+-- 4번 게시글 삭제
+delete from board3 where id=4;
+
+
+-- 수정 쿼리
+-- 1번 게시글 내용을 안녕하세요 로 수정
+select * from board3;
+update board3 set board3_contents='안녕하세요' where id= 1;
+
+-- 4번 게시글 작성자를 작성자4, 내용을 곧 점심시간으로 수정
+update board3 set board3_writer='작성자', board3_contents='곧 점심시간' where id=3;
+
+
+-- id 컬럼에 자동 번호 적용하기
+drop table if exists board4;
+create table board4(
+	id bigint auto_increment,  -- 글번호
+    board4_writer varchar(20) not null, -- 작성자
+    board4_contents varchar(500), -- 내용
+    constraint pk_board4 primary key(id)
+    -- auto_increment를 사용하는 것은 key로 지정되어야한다.
+);
+insert into board4(board4_writer, board4_contents)
+	values('writer1', 'contents1');
+insert into board4(board4_writer, board4_contents)
+	values('writer2', 'contents2');
+insert into board4(board4_writer, board4_contents)
+	values('writer3', 'contents3');
+insert into board4(board4_writer, board4_contents)
+	values('writer4', 'contents4');
+select * from board4;
