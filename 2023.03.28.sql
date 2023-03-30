@@ -534,13 +534,15 @@ values(3, 'writer3', 'contents3');
 insert into board2(id, board2_writer, board2_contents)
 values(4, 'writer4', 'contents4');
 select * from board2;
--- 1,2번 게시글에 댓글 작성
+-- 1,2,3번 게시글에 댓글 작성
 insert into comment2(id, comment2_writer, comment2_contents, board2_id)
 	values (1, 'c writer1', 'c contents1', 1);
 insert into comment2(id, comment2_writer, comment2_contents, board2_id)
 	values (2, 'c writer1', 'c contents1', 2);
 insert into comment2(id, comment2_writer, comment2_contents, board2_id)
 	values (3, 'c writer1', 'c contents1', 3);
+insert into comment2(id, comment2_writer, comment2_contents, board2_id)
+	values (4, 'c writer1', 'c contents1', 4);
 select * from comment2;
 -- 3번 게시글 삭제
 delete from board2 where id=3;
@@ -576,7 +578,7 @@ values(3, 'writer3', 'contents3');
 insert into board3(id, board3_writer, board3_contents)
 values(4, 'writer4', 'contents4');
 select * from board3;
--- 1,2번 게시글에 댓글 작성
+-- 1,2,3,4번 게시글에 댓글 작성
 insert into comment3(id, comment3_writer, comment3_contents, board3_id)
 	values (1, 'c writer1', 'c contents1', 1);
 insert into comment3(id, comment3_writer, comment3_contents, board3_id)
@@ -619,3 +621,138 @@ insert into board4(board4_writer, board4_contents)
 insert into board4(board4_writer, board4_contents)
 	values('writer4', 'contents4');
 select * from board4;
+
+
+
+
+
+
+
+-- book table
+drop table if exists book;
+create table book(
+	id bigint auto_increment,
+    b_bookname varchar(20) not null,
+    b_publisher varchar(10) not null,
+    b_price bigint not null,
+	constraint book primary key(id)
+    );
+
+insert into book(b_bookname, b_publisher, b_price)
+	values('축구의 역사','굿스포츠',7000);
+insert into book(b_bookname, b_publisher, b_price)
+	values('축구스카우팅 리포트','나무수',13000);
+insert into book(b_bookname, b_publisher, b_price)
+	values('축구의 이해','대한미디어',22000);
+insert into book(b_bookname, b_publisher, b_price)
+	values('배구 바이블','대한미디어',35000);
+insert into book(b_bookname, b_publisher, b_price)
+	values('피겨 교본','굿스포츠',8000);
+insert into book(b_bookname, b_publisher, b_price)
+	values('피칭 단계별기술','굿스포츠',6000);
+insert into book(b_bookname, b_publisher, b_price)
+	values('야구의 추억','이상미디어',20000);
+insert into book(b_bookname, b_publisher, b_price)
+	values('야구를 부탁해','이상미디어',13000);
+insert into book(b_bookname, b_publisher, b_price)
+	values('올림픽 이야기','삼성당',7500);
+insert into book(b_bookname, b_publisher, b_price)
+	values('olympic champions','pearson',13000);
+select * from book;
+
+drop table if exists customer;
+create table customer(
+	id bigint auto_increment,
+    c_name varchar(3) not null,
+    c_address varchar(10) not null,
+    c_phone varchar(15) default null,
+    constraint customer primary key(id)
+    );
+insert into customer(c_name, c_address, c_phone)
+	values('손흥민','영국 런던','010-5000-0001');
+insert into customer(c_name, c_address, c_phone)
+	values('김연아','대한민국 서울','010-6000-0001');
+insert into customer(c_name, c_address, c_phone)
+	values('김연경','중국 상하이','010-7000-0001');
+insert into customer(c_name, c_address, c_phone)
+	values('류현진','캐나다 토론토','010-8000-0001');
+insert into customer(c_name, c_address)
+	values('이강인','스페인 마요르카');
+select * from customer;
+
+drop table if exists orders;
+create table orders(
+	id bigint auto_increment,
+    customer_id bigint,
+    book_id bigint,
+    o_saleprice bigint,
+    o_orderdate date,
+    constraint orders primary key(id),
+    constraint orders foreign key(customer_id) references customer(id),
+    constraint fk_orders foreign key(book_id) references book(id)
+    );
+    
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(1, 1, '6000','2021-07-01');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(1, 3, '21000','2021-07-03');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(2, 5, '8000','2021-07-03');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(3, 6, '6000','2021-07-04');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(4, 7, '20000','2021-07-05');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(1, 2, '12000','2021-07-07');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(4, 8, '13000','2021-07-07');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(3, 10, '12000','2021-07-08');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(2, 10, '7000','2021-07-09');
+insert into orders(customer_id, book_id, o_saleprice, o_orderdate)
+	values(3, 8, '13000','2021-07-10');
+select * from orders;
+
+
+select * from book;
+select * from customer;
+select * from orders;
+
+-- 1. 모든 도서의 가격과 도서명 조회
+select b_bookname, b_price from book;
+
+-- 2. 모든 출판사 이름 조회
+select b_publisher from book;
+
+-- 2.1 중복값 제외 출판사 이름조회
+select distinct b_publisher from book;
+
+-- 3. book 테이블의 모든 내용 조회
+select * from book;
+
+-- 4. 20000미만인 도서만 조회
+select * from book where b_price < 20000;
+
+-- 5. 10000원이상 20000원이하 도서만 조회
+select * from book where b_price <= 20000 and b_price>=10000;
+select * from book where b_price between 10000 and 20000;
+
+-- 6. 출판사가 굿스포츠 또는 대한미디어인 도서 조회
+select * from book where b_publisher = '굿스포츠' or b_publisher = '대한미디어';
+
+-- 7. 도서명에 축구가 포함된 모든 도서를 조회
+select * from book where b_bookname like '%축구%';
+
+-- 8. 도서명의 두번째 글자가 구 인 도서 조회
+select * from book where b_bookname like '_구%';
+
+-- 9. 축구 관련 도서 중 가격이 20000원이상인 도서 조회
+select * from book where b_bookname like '%축구%' and b_price >=20000;
+
+-- 10. 책 이름순으로 전체 도서 조회
+select * from book order by b_bookname asc;
+
+-- 11.도서를 가격이 낮은 것부터 조회하고 같은 가격일경우 도서명을 가나다 순으로 조회
+select * from book order by b_price, b_bookname asc;
+
