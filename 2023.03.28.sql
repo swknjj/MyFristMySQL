@@ -468,3 +468,82 @@ create table comment1 (
     -- 참조하는 데이터는 타입이 같이야 한다 ( 여기서는 board(id) = bigint, comment1(id)= bigint 이므로 가능 )
     constraint fk_comment1 foreign key(board1_id) references board1(id)
     );
+    
+insert into board1(id, board_writer, board_contents)
+values(1, 'writer1', 'contents1');
+insert into board1(id, board_writer, board_contents)
+values(2, 'writer2', 'contents2');
+insert into board1(id, board_writer, board_contents)
+values(3, 'writer3', 'contents3');
+insert into board1(id, board_writer, board_contents)
+values(4, 'writer4', 'contents4');
+select * from board1;
+
+-- 댓글 데이터
+-- 1번 게시글에 대한 댓글
+insert into comment1(id, comment_writer, comment_contents, board1_id)
+	values(1, 'c writer1', 'c contents1' , 1);
+-- 1번 게시글에 대한 2번째 댓글
+insert into comment1(id, comment_writer, comment_contents, board1_id)
+	values(2, 'c writer1', 'c contents1' , 1);
+-- 2번 게시글에 대한 댓글
+insert into comment1(id, comment_writer, comment_contents, board1_id)
+	values(3, 'c writer2', 'c contents2' , 2);
+-- 3번 게시글에 대한 댓글
+insert into comment1(id, comment_writer, comment_contents, board1_id)
+	values(4, 'c writer3', 'c contents3' , 3);
+insert into comment1(id, comment_writer, comment_contents, board1_id)
+	values(5, 'c writer4', 'c contents4' , 5);    -- board1의 5번째 글이 없기 때문에 에러
+select * from comment1;
+
+-- 부모 데이터 삭제
+-- 1,2,3번 게시글에는 댓글이 있고 ,  4번 데이터에는 댓글이 없음
+-- 4번 데이터 삭제
+delete from board1 where id= 4; -- where 조건은 항상 PK컬럼
+delete from board1 where id= 3; -- comment1 데이터가 자식으로 있기때문에 삭제안됨, 에러
+-- 2번 게시글에 있는 댓글 삭제
+delete from comment1 where id= 3;
+delete from board1 where id= 2; -- 댓글이 없어졌기 때문에 글삭제 가능
+
+drop table if exists board2;
+create table board2(
+	id bigint, -- 글번호
+    board2_writer varchar(20) not null, -- 작성자
+    board2_contents varchar(500), -- 내용
+    constraint pk_board2 primary key(id)
+);
+
+drop table if exists comment2;
+create table comment2(
+	id bigint, -- 글번호
+    comment2_writer varchar(20) not null, -- 댓글 작성자
+    comment2_contents varchar(200), -- 댓글 내용
+    board2_id bigint, -- 어떤 게시글에 작성된 댓글인지 글번호 정보가 필요함
+    constraint pk_board2 primary key(id),
+    -- on delete cascade은 부모 테이블이 삭제되면 자식 테이블 값도 삭제되는 것이다.
+    constraint fk_comment2 foreign key(board2_id) references board2(id) on delete cascade
+);
+
+-- 게시글 4개 작성
+insert into board2(id, board2_writer, board2_contents)
+values(1, 'writer1', 'contents1');
+insert into board2(id, board2_writer, board2_contents)
+values(2, 'writer2', 'contents2');
+insert into board2(id, board2_writer, board2_contents)
+values(3, 'writer3', 'contents3');
+insert into board2(id, board2_writer, board2_contents)
+values(4, 'writer4', 'contents4');
+select * from board2;
+-- 1,2번 게시글에 댓글 작성
+insert into comment2(id, comment2_writer, comment2_contents, board2_id)
+	values (1, 'c writer1', 'c contents1', 1);
+insert into comment2(id, comment2_writer, comment2_contents, board2_id)
+	values (2, 'c writer1', 'c contents1', 2);
+insert into comment2(id, comment2_writer, comment2_contents, board2_id)
+	values (3, 'c writer1', 'c contents1', 3);
+select * from comment2;
+-- 3번 게시글 삭제
+delete from board2 where id=3;
+-- 4번 게시글 삭제
+delete from board2 where id=4;
+
