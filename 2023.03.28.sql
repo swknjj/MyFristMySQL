@@ -868,3 +868,95 @@ select sum(o_saleprice) from orders where customer_id =2 or customer_id=3;
 select sum(o_saleprice) from orders where customer_id in(2,3);
 select sum(o_saleprice) from orders where customer_id
 	in(select id from customer where c_name like '김%');
+    
+    
+    
+-- 테이블 구조 변경 ( alter )
+create table student(
+	id bigint,
+    s_name varchar(20),
+    s_mobile int
+);
+desc student;
+
+-- 기존 컬럼에 제약조건추가
+alter table student add constraint primary key(id);
+
+-- 기존 컬럼 타입 변경
+alter table student modify s_mobile varchar(30);
+
+-- 새로운 컬럼 추가
+alter table student add s_major varchar(30);
+
+-- 컬럼 이름 변경
+alter table student change s_mobile s_phone varchar(30);
+
+-- 컬럼 삭제
+alter table student drop s_major;
+
+drop table if exists member_table;
+create table member_table (
+	id bigint auto_increment,
+    member_email varchar(50) not null,
+    member_name varchar(20) not null,
+    member_password varchar(20) not null,
+    constraint pk_member_table primary key(id)
+    );
+
+drop table if exists category_table;
+create table category_table (
+	id bigint auto_increment,
+    category_name varchar(20),
+    constraint pk_category_table primary key(id)
+    );
+
+drop table if exists board_table;    
+create table board_table (
+	id bigint auto_increment,
+    board_title varchar(50) not null,
+    board_writer varchar(20) not null,
+    board_contents varchar(500),
+    board_hits Int,
+    board_created_time DATETIME,
+    board_updated_tme DATETIME,
+    board_file_attached Int,
+    member_id bigint,
+    category_id bigint,
+    constraint pk_board_table primary key(id),
+    constraint board_table foreign key(member_id) references member_table(id) on delete cascade,
+    constraint fk_board_table foreign key(category_id) references category_table(id) on delete set null
+    );
+    
+drop table if exists board_file_table;
+create table board_file_table (
+	id bigint auto_increment,
+    original_file_name varchar(100),
+    stored_file_name varchar(100),
+    board_id bigint,
+    constraint pk_board_file_table primary key(id),
+    constraint fk2_board_table foreign key(board_id) references board_table(id) on delete cascade
+    );
+
+drop table if exists comment_table;
+create table comment_table (
+	id bigint auto_increment,
+    comment_writer varchar(20) not null,
+    comment_contents varchar(200),
+    comment_created_time DATETIME,
+    board_id bigint,
+    member_id bigint,
+    constraint pk_comment_table primary key(id),
+    constraint comment_table foreign key(board_id) references board_table(id) on delete cascade,
+    constraint fk_comment_table foreign key(member_id) references member_table(id) on delete cascade
+    );
+    
+drop table if exists good_table;
+create table good_table (
+	id bigint auto_increment,
+    
+    comment_id bigint,
+    member_id bigint,
+    constraint pk_good_table primary key(id),
+    constraint good_table foreign key(comment_id) references comment_table(id),
+    constraint fk_good_table foreign key(member_id) references member_table(id) on delete cascade
+    );
