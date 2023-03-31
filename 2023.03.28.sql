@@ -845,10 +845,15 @@ select b_bookname from book
 -- 31. 책을 구매한 이력이 있는 고객의 이름을 조회
 select distinct c_name from customer c , orders o
 	where c.id = o.customer_id;
+select c_name from customer where id in(select customer_id from orders);
 -- 32. 도서의 가격(PRICE)과 판매가격(SALEPRICE)의 차이가 가장 많이 나는 주문 조회 
 select * from orders o , book b 
 	where o.book_id = b.id
-    and o.o_saleprice = ( select max(b_price - o_saleprice) from orders);
+    and o.o_saleprice = (select max(b_price - o_saleprice) from orders);
+select * from book b, orders o where b.id = o.book_id
+	and b.b_price-o.o_saleprice = 
+		(select max(b.b_price - o.o_saleprice) 
+			from book b, orders o where b.id=o.book_id); 
 -- 33. 고객별 평균 구매 금액이 도서의 판매 평균 금액 보다 높은 고객의 이름 조회 
 select c_name from customer c , orders o where c.id = o.customer_id group by c.id
 	having avg(o_saleprice) > (select avg(o_saleprice) from orders);
@@ -858,3 +863,8 @@ update customer set c_address='대한민국 인천' where id= 5;
 select c_name, sum(o_saleprice) from customer c , orders o
 	where c.id = o.customer_id and c_name like '김__'
 		group by c_name;
+select id from customer where c_name like '김%';
+select sum(o_saleprice) from orders where customer_id =2 or customer_id=3;
+select sum(o_saleprice) from orders where customer_id in(2,3);
+select sum(o_saleprice) from orders where customer_id
+	in(select id from customer where c_name like '김%');
