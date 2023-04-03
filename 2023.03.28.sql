@@ -1090,6 +1090,7 @@ select * from board_file_table where board_id=9;
 -- 4. 3번회원이 자유게시판에 첫번째로 작성한 게시글의 제목 , 내용 수정
 update board_table set board_title = '수정된 제목', board_contents = '수정된 내용'
 	where id= 2;
+select * from board_table where id=2;
     
 -- 5. 4번회원이 자유게시판에 첫번째로 작성한 게시글 삭제
 delete from board_table where id = 5;
@@ -1156,3 +1157,17 @@ insert into good_table(comment_id, member_id) values (1,5);
 delete from good_table where id=5;
 -- 4. 댓글 조회시 좋아요 갯수도 함께 조회
 select count(id) from good_table where comment_id=1;
+
+-- 모든 테이블 보기
+show tables;
+-- 데이터베이스로 이동하지않고 데이터베이스를 SQL문에 지정하여 데이터 사전을 확인 가능
+select * from information_Schema.tables;
+-- 10개로 제한
+select * from information_Schema.tables limit 10;
+-- 테이블 목록 확인
+select table_schema, table_name, engine, data_length, create_time from information_Schema.tables
+	where table_schema = 'db_dbclass';
+-- 제약조건 확인
+select constraint_name, table_name, constraint_type from information_Schema.table_constraints
+	where table_schema = 'db_dbclass';
+    
