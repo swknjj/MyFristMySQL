@@ -1072,3 +1072,87 @@ select * from board_table board_t , board_file_table board_f where category_id=2
 select * from board_table where category_id=3;
 -- 가입인사에서 파일있는 글만 출력
 select * from board_table board_t , board_file_table board_f where category_id=3 and board_t.id = board_f.board_id;
+
+
+
+-- 3.1 2번 게시글 조회(조회수 처리 필요함)
+update board_table set board_hits = board_hits+1 where id=2;
+select * from board_table where id=2;
+
+-- 3.2 파일 첨부된 게시글 조회(게시글 내용과 파일을 함께)
+update board_table set board_hits = board_hits+1 where id=9;
+select * from board_table t , board_file_table f where t.id = f.board_id and t.id= 9;
+-- 쿼리 두번 실행
+select * from board_table where id=9;
+select * from board_file_table where board_id=9;
+
+
+-- 4. 3번회원이 자유게시판에 첫번째로 작성한 게시글의 제목 , 내용 수정
+update board_table set board_title = '수정된 제목', board_contents = '수정된 내용'
+	where id= 2;
+    
+-- 5. 4번회원이 자유게시판에 첫번째로 작성한 게시글 삭제
+delete from board_table where id = 5;
+
+-- 6. 페이징 처리(한페이지당 글3개씩)
+select * from board_table order by id desc;
+-- 6.1 첫번째페이지
+select * from board_table orders order by id desc limit 3;
+-- 6.2 두번째페이지
+select * from board_table orders order by id desc limit 3 offset 3;
+-- 3부터 3개를 보겠다
+select * from board_table orders order by id desc limit 3,3;
+-- 6.3 세번째 페이지
+select * from board_table orders order by id desc limit 3 offset 6;
+-- 6부터 3개를 보겠다
+select * from board_table orders order by id desc limit 6,3;
+-- 전체 글 갯수
+select count(id) from board_table;
+-- 정렬기준은 조회수, 한페이지당 글 5개씩 볼때 페이지
+
+
+select * from board_table order by board_hits desc limit 0, 5;
+-- 게시글 갯수 : 10개 , 한페이지당 4개씩:3 , 한페이지당 3개씩:4 
+
+-- 7-1. 검색(글 제목 기준)
+select * from board_table where board_title like '%3%' order by board_title asc;
+
+-- 7-2. 검색(결과를 오래된 순으로 조회)
+select * from board_table where board_title like '%3%' order by board_created_time asc;
+
+-- 7-3. 검색(조회수 내림차순으로 조회)
+select * from board_table where board_title like '%%' order by board_hits desc;
+
+-- 7.4 검색결과 페이징 처리 ( 검색결과 중 첫페이지(한페이지당 글 2개씩 나온다고 가정))
+select * from board_table where board_title like '%3%' order by board_title asc limit 0,2;
+select * from board_table where board_title like '%3%' order by board_title asc limit 2,4;
+
+-- 댓글 기능 
+-- 1. 댓글 작성 
+-- 1.1. 3번 회원이 2번 게시글에 댓글 작성 
+insert comment_table( comment_writer, comment_contents, board_id, member_id)
+	values ('3번회원의 댓글1','3번유저',2,3);
+-- 1.2. 4번 회원이 2번 게시글에 댓글 작성 
+insert comment_table( comment_writer, comment_contents, board_id, member_id)
+	values ('4번회원의 댓글1','4번유저',2,4);
+-- 2. 댓글 조회
+select * from board_table b, comment_table c where b.id = c.board_id;
+
+-- 3. 댓글 좋아요 
+select * from good_table;
+-- 3.1. 4번 회원이 3번 회원이 작성한 댓글에 좋아요 클릭
+-- 좋아요 하기전 체크
+select id from good_table where comment_id=1 and member_id=4;
+-- 좋아요 한적이 없다면 좋아요
+insert into good_table(comment_id, member_id) values (1,4);
+-- 좋아요 한적이 있다면 좋아요 취소
+delete from good_table where id=4;
+-- 3.2. 5번 회원이 4번 회원이 작성한 댓글에 좋아요 클릭 
+-- 좋아요 하기전 체크
+select id from good_table where comment_id=2 and member_id=5;
+-- 좋아요 한적이 없다면 좋아요
+insert into good_table(comment_id, member_id) values (1,5);
+-- 좋아요 한적이 있다면 좋아요 취소
+delete from good_table where id=5;
+-- 4. 댓글 조회시 좋아요 갯수도 함께 조회
+select count(id) from good_table where comment_id=1;
