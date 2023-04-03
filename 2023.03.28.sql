@@ -894,10 +894,12 @@ alter table student change s_mobile s_phone varchar(30);
 -- 컬럼 삭제
 alter table student drop s_major;
 
+use db_dbclass;
+
 drop table if exists member_table;
 create table member_table (
 	id bigint auto_increment,
-    member_email varchar(50) not null,
+    member_email varchar(50) not null unique,
     member_name varchar(20) not null,
     member_password varchar(20) not null,
     constraint pk_member_table primary key(id)
@@ -906,7 +908,7 @@ create table member_table (
 drop table if exists category_table;
 create table category_table (
 	id bigint auto_increment,
-    category_name varchar(20),
+    category_name varchar(20) not null unique,
     constraint pk_category_table primary key(id)
     );
 
@@ -916,10 +918,10 @@ create table board_table (
     board_title varchar(50) not null,
     board_writer varchar(20) not null,
     board_contents varchar(500),
-    board_hits Int,
-    board_created_time DATETIME,
-    board_updated_tme DATETIME,
-    board_file_attached Int,
+    board_hits Int default 0,
+    board_created_time DATETIME default now(),
+    board_updated_tme DATETIME on update now(),
+    board_file_attached Int default 0, -- 파일 첨부여부(0 있으면 1)
     member_id bigint,
     category_id bigint,
     constraint pk_board_table primary key(id),
@@ -930,8 +932,9 @@ create table board_table (
 drop table if exists board_file_table;
 create table board_file_table (
 	id bigint auto_increment,
-    original_file_name varchar(100),
-    stored_file_name varchar(100),
+    original_file_name varchar(100), -- 사용자가 업로드한 파일의 이름
+    stored_file_name varchar(100), -- 관리용 파일 이름(파일이름 생성 로직은 backend에서)
+    -- 증명사진.jpg 546516651-증명사진.jpg
     board_id bigint,
     constraint pk_board_file_table primary key(id),
     constraint fk2_board_table foreign key(board_id) references board_table(id) on delete cascade
@@ -941,8 +944,8 @@ drop table if exists comment_table;
 create table comment_table (
 	id bigint auto_increment,
     comment_writer varchar(20) not null,
-    comment_contents varchar(200),
-    comment_created_time DATETIME,
+    comment_contents varchar(200) not null,
+    comment_created_time DATETIME default now(),
     board_id bigint,
     member_id bigint,
     constraint pk_comment_table primary key(id),
@@ -953,10 +956,119 @@ create table comment_table (
 drop table if exists good_table;
 create table good_table (
 	id bigint auto_increment,
-    
     comment_id bigint,
     member_id bigint,
     constraint pk_good_table primary key(id),
-    constraint good_table foreign key(comment_id) references comment_table(id),
+    constraint good_table foreign key(comment_id) references comment_table(id) on delete cascade,
     constraint fk_good_table foreign key(member_id) references member_table(id) on delete cascade
     );
+
+
+
+-- 1. 회원가입    
+insert into member_table(member_email,member_name,member_password)
+	values('a@gmail.com','김쿼리','1234');
+insert into member_table(member_email,member_name,member_password)
+	values('b@gmail.com','이쿼리','1234');
+insert into member_table(member_email,member_name,member_password)
+	values('c@gmail.com','잡쿼리','1234');
+    
+-- 2. 이메일 중복체크
+alter table member_table add constraint unique(member_email);
+-- 가입된 이메일로 가입하려고 한다면
+select member_email from member_table where member_email = 'a@gmail.com';
+desc member_table;
+-- 가입되어 있지 않은 이메일로 가입하려고 한다면
+select member_email from member_table where member_email = 'kasdas@gmail.com';
+    
+-- 로그인
+select * from member_table where member_email = 'a@gmail.com' and member_password = '1234';
+select * from member_table where member_email = 'a@gmail.com' and member_password = '5678'; -- X
+-- 전체 회원 목록 조회
+select * from member_table;
+
+-- 특정 회원만 조회 예) 이름이 이쿼리인사람
+select * from member_table where member_name = '이쿼리';
+
+-- 회원정보 수정화면 요청
+select * from member_table;
+-- 회원정보 수정처리(비밀번호 변경)
+set sql_safe_updates=0;
+update member_table set member_password = '5678' where id=1;
+-- 회원 삭제 또는 탈퇴 
+delete from member_table where id=1;
+
+
+
+    
+-- 게시글 카테고리
+-- 게시판 카테고리는 자유게시판 , 공지사항 , 가입인사
+insert into category_table(category_name)
+	values ('자유게시판');
+insert into category_table(category_name)
+	values ('공지사항');
+insert into category_table(category_name)
+	values ('가입인사');
+
+select * from category_table order by id;
+
+-- 게시판 기능
+-- 1. 게시글 작성(파일첨부 X) 3개이상
+-- 3번회원이 자유게시판 글2개 공지사항 글1개 작성
+insert into board_table(board_title, board_writer, board_contents, member_id, category_id)
+	values ('유저3의 제목3','유저3','유저3의 내용3',3,1);
+-- 3번회원이 자유게시판 글2개 공지사항 글1개 작성
+insert into board_table(board_title, board_writer, board_contents, member_id, category_id)
+	values ('유저3의 제목33','유저3','유저3의 내용33',3,1);
+insert into board_table(board_title, board_writer, board_contents, member_id, category_id)
+	values ('유저3의 제목3','유저3','유저3의 내용3',3,2);
+
+-- 4번회원이 자유게시판 글 3개 작성
+insert into board_table(board_title, board_writer, board_contents, member_id, category_id)
+	values ('유저4의 제목4','유저4','유저4의 내용4',4,1);
+insert into board_table(board_title, board_writer, board_contents, member_id, category_id)
+	values ('유저4의 제목44','유저4','유저4의 내용44',4,1);
+insert into board_table(board_title, board_writer, board_contents, member_id, category_id)
+	values ('유저4의 제목444','유저4','유저4의 내용444',4,1);
+
+-- 4번회원이 가입인사 글 1개 작성
+insert into board_table(board_title, board_writer, board_contents, member_id, category_id)
+	values ('유저4의 제목4','유저4','유저4의 내용4',4,3);
+    
+-- 1.1 게시글 작성(파일첨부 o)
+-- 3번 회원이 파일있는 자유게시판 글 2개 작성
+insert into board_table(board_title, board_writer, board_contents, board_file_attached, member_id, category_id)
+	values ('유저3의 제목3파일첨부o','유저3','유저3의 내용4파일첨부o',1,3,1);
+insert into board_file_table(original_file_name, stored_file_name, board_id)
+	values ('유저3의 파일이름3','유저3의 파일이름3',9);
+insert into board_table(board_title, board_writer, board_contents, board_file_attached, member_id, category_id)
+	values ('유저3의 제목3파일첨부o2','유저3','유저3의 내용4파일첨부o2',1,3,1);
+insert into board_file_table(original_file_name, stored_file_name, board_id)
+	values ('유저3의 파일이름3,2','유저3의 파일이름3,2',10);
+
+
+-- 2. 게시글 목록조회
+-- 2.1 전체글 목록 조회
+select * from board_table;
+
+-- 2.2 자유게시판 목록 조회
+select * from board_table where category_id=1;
+
+-- 2.3 공지사항 목록 조회
+select * from board_table where category_id=2;
+
+-- 2.4 목록 조회시 카테고리 이름도 함께 나오게 조회
+-- 전체출력
+select * from board_table b, category_table c where c.id = category_id order by b.id asc;
+-- 자유게시판 출력
+select * from board_table b, category_table c where b.category_id=1 and c.id = category_id;
+-- 자유게시판에서 파일있는 글만 출력
+select * from board_table board_t , board_file_table board_f where category_id=1 and board_t.id = board_f.board_id;
+-- 공지사항 출력
+select * from board_table b, category_table c where b.category_id=2 and c.id = category_id;
+-- 공지사항에서 파일있는 글만 출력
+select * from board_table board_t , board_file_table board_f where category_id=2 and board_t.id = board_f.board_id;
+-- 가입인사 출력
+select * from board_table where category_id=3;
+-- 가입인사에서 파일있는 글만 출력
+select * from board_table board_t , board_file_table board_f where category_id=3 and board_t.id = board_f.board_id;
