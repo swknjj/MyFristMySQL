@@ -1171,3 +1171,62 @@ select table_schema, table_name, engine, data_length, create_time from informati
 select constraint_name, table_name, constraint_type from information_Schema.table_constraints
 	where table_schema = 'db_dbclass';
     
+
+-- 투표프로그램 명세셔
+drop table if exists TBL_VOTE_202005;
+create table TBL_VOTE_202005(
+	V_JUMIN char(13) not null,
+    V_NAME varchar(20),
+    V_NO char(1),
+    V_TIME char(4),
+    V_AREA char(20),
+    V_CONFIRM char(1),
+    constraint TBL_VOTE_202005 primary key(V_JUMIN)
+    );
+
+select * from TBL_VOTE_202005;
+desc TBL_VOTE_202005;
+
+insert into TBL_VOTE_202005(V_JUMIN, V_NAME, V_NO, V_TIME, V_AREA, V_CONFIRM)
+	values('99010110001', '김유권', 1, '0930', '제1투표장', 'N');
+insert into TBL_VOTE_202005(V_JUMIN, V_NAME, V_NO, V_TIME, V_AREA, V_CONFIRM)
+	values('89010120002', '이유권', 2, '0930', '제1투표장', 'N');
+    
+drop table if exists TBL_MEMBER_202005;
+create table TBL_MEMBER_202005(
+	M_NO char(1) not null,
+    M_NAME varchar(20),
+    P_CODE char(2),
+    P_SCHOOL char(1),
+    M_JUMIN char(13),
+    M_CITY varchar(20),
+    constraint TBL_MEMBER_202005 primary key(M_NO)
+    );
+
+select * from TBL_MEMBER_202005;
+desc TBL_MEMBER_202005;
+
+insert into TBL_MEMBER_202005(M_NO, M_NAME, P_CODE, P_SCHOOL, M_JUMIN, M_CITY)
+	values(1,'김후보','P1',1,'6603011999991','수선화동');
+insert into TBL_MEMBER_202005(M_NO, M_NAME, P_CODE, P_SCHOOL, M_JUMIN, M_CITY)
+	values(2,'이후보','P2',3,'5503011999992','민들래동');
+    
+drop table if exists TBL_PARTY_202005;
+create table TBL_PARTY_202005(
+	P_CODE char(2) not null,
+    P_NAME varchar(20),
+    P_INDATE DATE,
+    P_READER varchar(20),
+    P_TEL1 char(3),
+    P_TEL2 char(4),
+    P_TEL3 char(4),
+    constraint TBL_PARTY_202005 primary key(P_CODE)
+    );
+
+select * from TBL_PARTY_202005;
+desc TBL_PARTY_202005;
+
+insert into TBL_PARTY_202005(P_CODE, P_NAME, P_INDATE, P_READER, P_TEL1, P_TEL2, P_TEL3)
+	values('P1', 'A정당', '2010-01-01', '위대표', '02', 1111, '0001');
+insert into TBL_PARTY_202005(P_CODE, P_NAME, P_INDATE, P_READER, P_TEL1, P_TEL2, P_TEL3)
+	values('P2', 'B정당', '2010-02-01', '명대표', '02', 1111, '0002');
