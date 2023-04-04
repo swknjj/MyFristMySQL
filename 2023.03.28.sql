@@ -1281,6 +1281,7 @@ select substr(M_JUMIN, 7, 7) from TBL_MEMBER_202005;
 select concat(substr(M_JUMIN, 1, 6),'-',substr(M_JUMIN, 7, 7)) as '주민번호' from TBL_MEMBER_202005;
 select concat(left(M_JUMIN,6),'-',right(M_JUMIN,7)) as '주민번호' from TBL_MEMBER_202005;
 
+
 -- 대표전화
 select concat(P_TEL1,'-',P_TEL2,'-',P_TEL3) as '대표전화' from TBL_PARTY_202005;
 
@@ -1314,4 +1315,145 @@ select M.M_NO as '후보번호',
 		M.M_NAME as '성명', 
 		count(V.V_NO) as '총투표건수' 
         from TBL_VOTE_202005 V, TBL_MEMBER_202005 M 
-			where V.V_NO = M.M_NO and V.V_CONFIRM = 'Y' group by V.V_NO order by count(V.V_NO) desc;
+			where V.V_NO = M.M_NO and V.V_CONFIRM = 'Y' group by V.V_NO order by count(V.V_NO) desc,
+            M.M_NAME asc;
+
+select * from TBL_VOTE_202005;
+select V_NAME from TBL_VOTE_202005;
+-- 생년월일
+select V_NAME as '성명',
+	case
+	when substr(v_jumin,7,1) = '1'then concat('19',(substr(v_jumin,1,2)),'년',(substr(v_jumin,3,2)),'월',(substr(v_jumin,5,2)),'일')
+    when substr(v_jumin,7,1) = '2'then concat('19',(substr(v_jumin,1,2)),'년',(substr(v_jumin,3,2)),'월',(substr(v_jumin,5,2)),'일')
+    else concat('20',(substr(v_jumin,1,2)),'년',(substr(v_jumin,3,2)),'월',(substr(v_jumin,5,2)),'일')
+    end
+	as '생년월일' from tbl_vote_202005;
+    
+    
+    
+
+-- 3.1 생년월일
+select concat(
+				'19',
+                substr(v_jumin, 1, 2),
+                '년'
+                )
+			from tbl_vote_202005;
+-- 주민번호 7자리 1,2면 19 3,4면 20
+-- 19인지 20인지
+select v_jumin,
+				case
+					when substr(v_jumin,7, 1) in('1','2') then '19'
+                    when substr(v_jumin,7, 1) in('3','4') then '00'
+				end as '년도 앞자리'
+			from tbl_vote_202005;
+
+select concat(
+				-- 앞자리 만들기
+				case
+					when substr(v_jumin,7, 1) in('1','2') then '19'
+                    when substr(v_jumin,7, 1) in('3','4') then '00'
+				end,
+                -- 년도 뒤 두자리
+                substr(v_jumin, 1,2),
+                '년',
+				-- 월 두 자리
+                substr(v_jumin, 3,2),
+                '월',
+                -- 일 두 자리
+                substr(v_jumin, 5,2),
+                '일생'
+                ) as '생년월일'
+                from tbl_vote_202005;
+
+-- 3.2 만나이 계산
+-- 현재년도에서 태어난년도를 빼기
+select sysdate() from dual;
+-- 현재 년도
+select date_format(sysdate(), '%Y') from dual;
+-- 정수형태로 변환
+select cast(date_format(sysdate(), '%Y') as unsigned ) from dual;
+select cast(date_format(sysdate(), '%Y') as unsigned ) - 2023 from dual;
+-- 결과
+select concat(
+				'만',
+                cast(date_format(sysdate(), '%Y') as unsigned) -- 현재년도
+				- -- 뺄셈
+                concat(case 
+							when substr(v_jumin, 7, 1) in('1', '2') then '19'
+							when substr(v_jumin, 7, 1) in('3', '4') then '20'
+						end,
+					   substr(v_jumin, 1, 2)
+					  ),
+                '세'
+			 ) as '나이'
+	from tbl_vote_202005;
+    
+-- 성별
+select 
+			case
+            when substr(v_jumin, 7, 1) in('1', '3') then '남'
+            when substr(v_jumin, 7, 1) in('2', '4') then '여'
+            end as '성별'
+            from tbl_vote_202005;
+            
+-- 투표시간
+select concat(substr(v_time, 1, 2),':',substr(v_time, 3, 2)) from tbl_vote_202005;
+
+-- 유권자 확인
+select 
+		case
+            when V_CONFIRM = 'N' then '미확인'
+            when V_CONFIRM = 'Y' then '확인'
+            else '없음'
+            end as '유권자확인'
+            from tbl_vote_202005;
+            
+
+
+
+-- 총정리
+
+select v_name as '성명',
+	concat(
+				-- 앞자리 만들기
+				case
+					when substr(v_jumin,7, 1) in('1','2') then '19'
+                    when substr(v_jumin,7, 1) in('3','4') then '20'
+				end,
+                -- 년도 뒤 두자리
+                substr(v_jumin, 1,2),
+                '년',
+				-- 월 두 자리
+                substr(v_jumin, 3,2),
+                '월',
+                -- 일 두 자리
+                substr(v_jumin, 5,2),
+                '일생'
+                ) as '생년월일',
+	concat(
+				'만',
+                cast(date_format(sysdate(), '%Y') as unsigned) -- 현재년도
+				- -- 뺄셈
+                concat(case 
+							when substr(v_jumin, 7, 1) in('1', '2') then '19'
+							when substr(v_jumin, 7, 1) in('3', '4') then '20'
+						end,
+					   substr(v_jumin, 1, 2)
+					  ),
+                '세'
+			 ) as '나이',
+	case
+            when substr(v_jumin, 7, 1) in('1', '3') then '남'
+            when substr(v_jumin, 7, 1) in('2', '4') then '여'
+            end as '성별',
+            v_no as '후보번호',
+	concat(substr(v_time, 1, 2),':',substr(v_time, 3, 2)) as '투표시간',
+	case
+            when V_CONFIRM = 'N' then '미확인'
+            when V_CONFIRM = 'Y' then '확인'
+            else '없음'
+            end as '유권자확인'
+            from tbl_vote_202005;
+
+		
