@@ -1457,3 +1457,49 @@ select v_name as '성명',
             from tbl_vote_202005;
 
 		
+-- view(뷰)
+-- 일종의 가상 테이블 
+create view vote_result as
+select v_name as '성명',
+	concat(
+				-- 앞자리 만들기
+				case
+					when substr(v_jumin,7, 1) in('1','2') then '19'
+                    when substr(v_jumin,7, 1) in('3','4') then '20'
+				end,
+                -- 년도 뒤 두자리
+                substr(v_jumin, 1,2),
+                '년',
+				-- 월 두 자리
+                substr(v_jumin, 3,2),
+                '월',
+                -- 일 두 자리
+                substr(v_jumin, 5,2),
+                '일생'
+                ) as '생년월일',
+	concat(
+				'만',
+                cast(date_format(sysdate(), '%Y') as unsigned) -- 현재년도
+				- -- 뺄셈
+                concat(case 
+							when substr(v_jumin, 7, 1) in('1', '2') then '19'
+							when substr(v_jumin, 7, 1) in('3', '4') then '20'
+						end,
+					   substr(v_jumin, 1, 2)
+					  ),
+                '세'
+			 ) as '나이',
+	case
+            when substr(v_jumin, 7, 1) in('1', '3') then '남'
+            when substr(v_jumin, 7, 1) in('2', '4') then '여'
+            end as '성별',
+            v_no as '후보번호',
+	concat(substr(v_time, 1, 2),':',substr(v_time, 3, 2)) as '투표시간',
+	case
+            when V_CONFIRM = 'N' then '미확인'
+            when V_CONFIRM = 'Y' then '확인'
+            else '없음'
+            end as '유권자확인'
+            from tbl_vote_202005;
+            
+select * from vote_result;
