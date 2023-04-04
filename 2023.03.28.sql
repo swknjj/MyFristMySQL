@@ -1257,9 +1257,7 @@ insert into tbl_party_202005 values ('P5', 'E정당', '2010-05-01', '임대표',
 
 -- 1.1 후보자 정보 조회
 -- 1.2 후보자 정당 테이블 조인 ( 필요한 정보만 조회 )
-select M.M_NO as '후보번호', M.M_NAME as '성명',P.P_NAME as '소속정당', M.P_SCHOOL as '학력',
-	M.M_JUMIN as '주민번호', M.M_CITY as '지역구', P.P_TEL1,P.P_TEL2,P.P_TEL3
-		from TBL_MEMBER_202005 m, TBL_PARTY_202005 p where m.p_code = p.p_code;
+
 -- 학력이 1이면 고졸 2면 학사 3이면 석사 4면 박사
 select p_school from TBL_MEMBER_202005;
 select p_school,
@@ -1283,3 +1281,37 @@ select substr(M_JUMIN, 7, 7) from TBL_MEMBER_202005;
 select concat(substr(M_JUMIN, 1, 6),'-',substr(M_JUMIN, 7, 7)) as '주민번호' from TBL_MEMBER_202005;
 select concat(left(M_JUMIN,6),'-',right(M_JUMIN,7)) as '주민번호' from TBL_MEMBER_202005;
 
+-- 대표전화
+select concat(P_TEL1,'-',P_TEL2,'-',P_TEL3) as '대표전화' from TBL_PARTY_202005;
+
+-- 1.5 대표전화 
+select concat(p_tel1, '-', p_tel2, '-', p_tel3) as '대표전화' from tbl_party_202005;
+-- 1.6 완성 
+select  m.m_no as '후보번호', 
+		m.m_name as '성명', 
+        p.p_name as '소속정당', 
+        case when m.p_school='1' then '고졸'
+			 when m.p_school='2' then '학사'
+			 when m.p_school='3' then '석사'
+			 when m.p_school='4' then '박사'
+			else '없음'
+			end as '학력', 
+		concat(
+				substr(m.m_jumin, 1, 6),
+                '-',
+                substr(m.m_jumin, 7, 7)
+			 ) as '주민번호', 
+        m.m_city as '지역구', 
+        concat(p.p_tel1, '-', p.p_tel2, '-', p.p_tel3) as '대표전화'        
+	from tbl_member_202005 m, tbl_party_202005 p 
+	where m.p_code = p.p_code;
+    
+-- 후보자등수
+select M.M_NO, M.M_NAME, count(M.M_NO) from TBL_VOTE_202005 V, TBL_MEMBER_202005 M 
+	where V.V_NO = M.M_NO group by V.V_NO order by count(M.M_NO) desc;
+    
+select M.M_NO as '후보번호', 
+		M.M_NAME as '성명', 
+		count(V.V_NO) as '총투표건수' 
+        from TBL_VOTE_202005 V, TBL_MEMBER_202005 M 
+			where V.V_NO = M.M_NO and V.V_CONFIRM = 'Y' group by V.V_NO order by count(V.V_NO) desc;
