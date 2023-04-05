@@ -1337,7 +1337,7 @@ select concat(
 				'19',
                 substr(v_jumin, 1, 2),
                 '년'
-                )
+                ) as '년도'
 			from tbl_vote_202005;
 -- 주민번호 7자리 1,2면 19 3,4면 20
 -- 19인지 20인지
@@ -1352,7 +1352,7 @@ select concat(
 				-- 앞자리 만들기
 				case
 					when substr(v_jumin,7, 1) in('1','2') then '19'
-                    when substr(v_jumin,7, 1) in('3','4') then '00'
+                    when substr(v_jumin,7, 1) in('3','4') then '20'
 				end,
                 -- 년도 뒤 두자리
                 substr(v_jumin, 1,2),
@@ -1398,7 +1398,7 @@ select
             from tbl_vote_202005;
             
 -- 투표시간
-select concat(substr(v_time, 1, 2),':',substr(v_time, 3, 2)) from tbl_vote_202005;
+select concat(substr(v_time, 1, 2),':',substr(v_time, 3, 2)) as '투표시간' from tbl_vote_202005;
 
 -- 유권자 확인
 select 
@@ -1503,3 +1503,67 @@ select v_name as '성명',
             from tbl_vote_202005;
             
 select * from vote_result;
+
+
+-- 실습 실기
+drop table if exists student_table;
+create table student_table(
+	id varchar(10),
+    student_password varchar(10) not null,
+    student_name varchar(10) not null,
+    student_date date not null,
+    student_sex varchar(1) not null,
+    student_email varchar(20),
+    student_mobile varchar(15) not null,
+    constraint pk_student_table primary key(id)
+    );
+desc student_table;
+
+drop table if exists board2_table;
+create table board2_table(
+	id bigint auto_increment,
+    board2_writer varchar(10),
+    board2_title varchar(10),
+    board2_body varchar(100),
+    board2_createtime datetime default now(),
+    board2_hits bigint default 0,
+    constraint pk_board2_table primary key(id),
+    constraint fk_board2_table foreign key(board2_writer) references student_table(id)
+    );
+desc board2_table;
+    
+insert into student_table 
+	values ('id1','id1의 비밀번호','id1의 이름','1997-03-01','남','id1@gmail.com','010-0000-0000');
+insert into student_table 
+	values ('id2','id2의 비밀번호','id2의 이름','1997-03-02','여','id2@gmail.com','010-1000-0000');
+
+select * from student_table;
+
+insert into board2_table(board2_writer, board2_title, board2_body)
+	values ('id1','id1의 글제목1', 'id1의 글내용1' );
+insert into board2_table(board2_writer, board2_title, board2_body)
+	values ('id1','id1의 글제목2', 'id1의 글내용2' );
+insert into board2_table(board2_writer, board2_title, board2_body)
+	values ('id2','id2의 글제목1', 'id2의 글내용1' );
+insert into board2_table(board2_writer, board2_title, board2_body)
+	values ('id2','id2의 글제목2', 'id2의 글내용2' );
+    
+select * from board2_table;
+
+select * from board2_table where board2_writer = 'id1';
+
+select * from board2_table order by board2_createtime asc;
+
+update board2_table set board2_hits = board2_hits+1 where id = 1;
+update board2_table set board2_hits = board2_hits+1 where id = 2;
+update board2_table set board2_hits = board2_hits+1 where id = 3;
+update board2_table set board2_hits = board2_hits+1 where id = 4;
+
+select * from board2_table order by board2_hits desc;
+
+update board2_table set board2_title = 'id1수정된제목' , board2_body = 'id1수정된내용' 
+	where id=1;
+
+delete from board2_table where board2_writer = 'id2';
+
+select * from board2_table where board2_hits between 2 and 3;
